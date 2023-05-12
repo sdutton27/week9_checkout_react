@@ -1,7 +1,14 @@
 import React from 'react'
 
 export default function Cart({ cart, removeFromCart, user }) {
+    const BACK_END_URL = process.env.REACT_APP_BACK_END_URL
+    console.log(BACK_END_URL)
+    //const STRIPE_API_KEY = process.env.REACT_APP_STRIPE_API_KEY
+    
     const getUniqueCart = (cart) => {
+
+        console.log(cart)
+
         const uniqueCart = []
         const ids = new Set();
 
@@ -38,7 +45,19 @@ export default function Cart({ cart, removeFromCart, user }) {
         removeFromCartAPI(item)
     }
 
+    // simon added for homework
+    const generateInputTags = () => {
+        const uniqueCart = getUniqueCart(cart)
+        /* returns:
+            <input> with name=product_name
+                 defaultValue=[price, quantity, img_url]
+        */
+        return uniqueCart.map((product, index) => {return <input key={`input_${index}`} name={uniqueCart[index].product_name} defaultValue={[uniqueCart[index].price, getQuanitity(uniqueCart[index], cart), uniqueCart[index].img_url, uniqueCart[index].description]} hidden/>})
+    }
+
+
     return (
+        <div>
         <table className='table table-striped'>
             <thead>
                 <tr>
@@ -69,5 +88,13 @@ export default function Cart({ cart, removeFromCart, user }) {
                 ))}
             </tbody>
         </table>
+        {
+            cart.length===0?<></>:
+            <form action = {BACK_END_URL + '/api/checkout/homework'} method="POST" align="center">
+                {generateInputTags()}
+                <button className='btn btn-primary'>Check Out</button>
+            </form>
+        }
+        </div>
     )
 }

@@ -12,6 +12,7 @@ import CreatePost from './views/CreatePost';
 import UpdatePost from './views/UpdatePost';
 import Shop from './views/Shop';
 import Cart from './views/Cart';
+import Message from './components/Message';
 
 const getUserFromLocalStorage = () => {
   const found = localStorage.getItem('user115')
@@ -24,6 +25,7 @@ const getUserFromLocalStorage = () => {
 export default function App() {
   const [user, setUser] = useState(getUserFromLocalStorage)
   const [cart, setCart] = useState([])
+  const [messages, setMessages] = useState([])
 
   const getTotal = (cart) => {
     let total = 0
@@ -80,7 +82,32 @@ export default function App() {
     setUser({})
     localStorage.removeItem('user115')
   };
-  // create a function that routes somewhere...
+  
+  const showMessages = () => {
+    return messages.map(({text, color}, index) => {return <Message key={index} text={text} color={color} messages={messages} setMessages={setMessages} index={index} />})
+  }
+
+  useEffect(()=>{
+    const query = new URLSearchParams(window.location.search);
+
+    const copy = [...messages]
+
+    if (query.get('success')) {
+        copy.push({
+            text: "You have successfully checked out.",
+            color: "success"
+        })
+        setMessages(copy)
+    }
+    if (query.get('canceled')) {
+        copy.push({
+            text: "Order canceled. Please continue to shop and then try checking out again.",
+            color: "warning"
+        })
+        setMessages(copy)
+      }
+  },[])
+
 
 
 
@@ -88,6 +115,7 @@ export default function App() {
     <div>
       <Navbar user={user} logMeOut={logMeOut} cart={cart} getTotal={getTotal}/>
       {/* <h1>Hello World</h1> */}
+      {showMessages()}
       <Routes>
         <Route path='/' element={<Home user={user} age='9000' />} />
         <Route path='/news' element={<News user={user} />} />
